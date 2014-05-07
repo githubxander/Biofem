@@ -86,18 +86,64 @@ $(document).on('pageinit','#dashboard-page', function(){
     
 });
 
-//Init Homepage
+//Init Data
 $(document).on('pageinit','#data-page', function(){
     
-        $(function() {
-            $("#example1").dataTable();
-        });
-  
-            
+        $.ajax({
+            url: 'https:api.knackhq.com/v1/objects/object_1/records'
+          , type: 'GET'
+          , headers: {
+                'X-Knack-Application-Id': '536a5467d0d46fbc0c647e7e'
+              , 'X-Knack-REST-API-Key': '704052c0-d5fe-11e3-8de1-5377a2620470'
+            }
+          , success: function(data) {
+                
+                var arr = [];
+                for(x in data.records){
+
+                    arr.push(
+                        {
+                            Name : data.records[x].field_1,
+                            Address : data.records[x].field_14,
+                            Email : data.records[x].field_15,
+                            Status : "<a href='edit-data.html?"+data.records[x].id+"'>Edit</a>"
+                        }
+                    );
+                    
+                }
+                console.log(arr);
+                $('#records').DataTable({
+                    "data": arr,
+                    "columns": [
+                        { "data": "Name" },
+                        { "data": "Address" },
+                        { "data": "Email" },
+                        { "data": "Status" }
+                    ]
+                });
+            }
+        }); 
 });
 
 
+//Init Edit Data
+$(document).on('pageinit','#edit-data-page', function(){
 
+    $.ajax({
+            url: 'https://api.knackhq.com/v1/records/536a551ebbf650762a8f921d/?format=both&callback=jQuery172017395361280068755_1399493777406&_=1399494483382'
+          , type: 'GET'
+          , headers: {
+                'X-Knack-Application-Id': '536a5467d0d46fbc0c647e7e'
+              , 'X-Knack-REST-API-Key': '704052c0-d5fe-11e3-8de1-5377a2620470'
+            }
+          , success: function(data) {
+                
+                console.log(data);
+                
+            }
+    }); 
+    
+});
 
 
 
