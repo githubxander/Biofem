@@ -1,18 +1,15 @@
 //app.initialize();
 
-
 var hostname = 'http://localhost/mobile/biofem/';
 var domainApi = 'http://localhost/mobile/biofem/';
 var domainSite = 'http://localhost/mobile/biofem/';
 var domainMobile = 'http://localhost/mobile/biofem/';    
-
 
 function init()
 {
 	document.addEventListener("deviceready", deviceReady, true);
 	delete init;
 }
-
 
 function loadMenu()
 {
@@ -47,19 +44,16 @@ function loadMenu()
 //		return false;
 //	});
 }
-
 	
 function checkPreAuth() {
 //	console.log("checkPreAuth");
-//  var form = $("#loginForm");
+//    var form = $("#loginForm");
 //    if(window.localStorage["email"] != undefined && window.localStorage["password"] != undefined) {
 //        $("#email", form).val(window.localStorage["email"]);
 //        $("#password", form).val(window.localStorage["password"]);
 //        handleLogin();
 //    }
 }
-
-
 
 function deviceReady() 
 {
@@ -86,11 +80,59 @@ $(document).on('pageinit','#dashboard-page', function(){
     
 });
 
-//Init Homepage
+//Init Data
 $(document).on('pageinit','#data-page', function(){
-	$(function() {
-		$("#example1").dataTable();
-	});
+	$.ajax({
+		url: 'https:api.knackhq.com/v1/objects/object_1/records'
+	  , type: 'GET'
+	  , headers: {
+			'X-Knack-Application-Id': '536a5467d0d46fbc0c647e7e'
+		  , 'X-Knack-REST-API-Key': '704052c0-d5fe-11e3-8de1-5377a2620470'
+		}
+	  , success: function(data) {
+			
+			var arr = [];
+			for(x in data.records){
+
+				arr.push(
+					{
+						Name : data.records[x].field_1,
+						Address : data.records[x].field_14,
+						Email : data.records[x].field_15,
+						Status : "<a href='edit-data.html?"+data.records[x].id+"'>Edit</a>"
+					}
+				);
+				
+			}
+			console.log(arr);
+			$('#records').DataTable({
+				"data": arr,
+				"columns": [
+					{ "data": "Name" },
+					{ "data": "Address" },
+					{ "data": "Email" },
+					{ "data": "Status" }
+				]
+			});
+		}
+	}); 
+});
+
+//Init Edit Data
+$(document).on('pageinit','#edit-data-page', function(){
+    $.ajax({
+            url: 'https://api.knackhq.com/v1/records/536a551ebbf650762a8f921d/?format=both&callback=jQuery172017395361280068755_1399493777406&_=1399494483382'
+          , type: 'GET'
+          , headers: {
+                'X-Knack-Application-Id': '536a5467d0d46fbc0c647e7e'
+              , 'X-Knack-REST-API-Key': '704052c0-d5fe-11e3-8de1-5377a2620470'
+            }
+          , success: function(data) {
+                
+                console.log(data);
+                
+            }
+    });  
 });
 
 function handleLogin() {
@@ -140,12 +182,6 @@ function handleLogin() {
 	}, 1000);
 }
 
-/*
-$(document).on('pageinit','#login-page', function(){
-
-});	
-*/
-
 $(function() {
 	$('#login').click(function(){
 		handleLogin();
@@ -156,4 +192,3 @@ $(function() {
 $(document).on('pageinit','[data-role=page]', function(){
 	loadMenu();
 });
-
