@@ -88,9 +88,9 @@ $(document).on('pageinit','#dashboard-page', function(){
 
 //Init Data
 $(document).on('pageinit','#data-page', function(){
-    
+
         $.ajax({
-            url: 'https:api.knackhq.com/v1/objects/object_1/records'
+            url: 'https:api.knackhq.com/v1/scenes/scene_1/views/view_1/records'
           , type: 'GET'
           , headers: {
                 'X-Knack-Application-Id': '536a5467d0d46fbc0c647e7e'
@@ -100,19 +100,21 @@ $(document).on('pageinit','#data-page', function(){
                 
                 var arr = [];
                 for(x in data.records){
+					var btn = "<a class='fa fa-fw fa-pencil-square-o' href='edit-data.html?id="+data.records[x].id+"'></a>"
+							+ "<a class='delete fa fa-fw fa-trash-o' href='#' data-id='"+data.records[x].id+"'></a>";
 
                     arr.push(
                         {
                             Name : data.records[x].field_1,
                             Address : data.records[x].field_14,
                             Email : data.records[x].field_15,
-                            Status : "<a href='edit-data.html?"+data.records[x].id+"'>Edit</a>"
+                            Status : btn
                         }
                     );
                     
                 }
-                console.log(arr);
-                $('#records').DataTable({
+                
+                $('#records').dataTable({
                     "data": arr,
                     "columns": [
                         { "data": "Name" },
@@ -122,15 +124,37 @@ $(document).on('pageinit','#data-page', function(){
                     ]
                 });
             }
+		  ,complete: function(data){
+		  
+			$('.delete').click(function(){
+	
+				var id = $('.delete').attr('data-id');
+				
+				return false;
+			});
+			
+		  }
         }); 
+		
+		
+		
 });
 
 
-//Init Edit Data
-$(document).on('pageinit','#edit-data-page', function(){
 
+function delete1(){
+
+
+}
+
+
+//Init Edit Data
+$(document).on('pageshow','#edit-data-page', function(){
+	
+	var id = getUrlVars()['id'];
+	
     $.ajax({
-            url: 'https://api.knackhq.com/v1/records/536a551ebbf650762a8f921d/?format=both&callback=jQuery172017395361280068755_1399493777406&_=1399494483382'
+            url: 'https://api.knackhq.com/v1/scenes/scene_5/views/view_5/records/'+id
           , type: 'GET'
           , headers: {
                 'X-Knack-Application-Id': '536a5467d0d46fbc0c647e7e'
@@ -138,15 +162,138 @@ $(document).on('pageinit','#edit-data-page', function(){
             }
           , success: function(data) {
                 
-                console.log(data);
+                $('#inputName').val(data.field_1);
+				$('#inputAddress').val(data.field_14);
+				$('#inputEmail').val(removeHtmlTag(data.field_15));
                 
             }
-    }); 
+    });
+	
+	
+	var form = $('#frmEdit');
+    
+    $(form).validate({
+        submitHandler: function( form ) {
+		
+			$.ajax({
+					url: 'https://api.knackhq.com/v1/scenes/scene_5/views/view_5/records/'+id+'/?format=both'
+				    ,type: 'PUT'
+				    ,data: {
+                            "field_1":$('#inputName').val(),
+                            "field_14":$('#inputAddress').val(),
+                            "field_15":$('#inputEmail').val()
+					}
+				    ,headers: {
+						'X-Knack-Application-Id': '536a5467d0d46fbc0c647e7e'
+					  , 'X-Knack-REST-API-Key': '704052c0-d5fe-11e3-8de1-5377a2620470'
+					}
+					,success: function(data) {
+						$('.message').html(notify('has-success' , 'fa-check', 'Update successful.'));
+					}
+					,error: function(data){
+						var array = JSON.parse(data.responseText);
+						$('.message').html(notify('has-error' , 'fa-warning',array.errors[0].message));
+					}
+			}); 
+		
+        }
+    });
     
 });
 
 
 
+//Init Test Page
+$(document).on('pageshow','#test-page', function(){
+	
+	var id = '536a5522bbf650762a8f9225';
+	
+    $.ajax({
+            url: 'https://api.knackhq.com/v1/scenes/scene_5/views/view_5/records/'+id
+          , type: 'GET'
+          , headers: {
+                'X-Knack-Application-Id': '536a5467d0d46fbc0c647e7e'
+              , 'X-Knack-REST-API-Key': '704052c0-d5fe-11e3-8de1-5377a2620470'
+            }
+          , success: function(data) {
+                
+                $('#inputName').val(data.field_1);
+				$('#inputAddress').val(data.field_14);
+				$('#inputEmail').val(removeHtmlTag(data.field_15));
+                
+            }
+    });
+	
+	
+	var form = $('#frmEdit');
+    
+    $(form).validate({
+        submitHandler: function( form ) {
+		
+			$.ajax({
+					url: 'https://api.knackhq.com/v1/scenes/scene_5/views/view_5/records/'+id+'/?format=both'
+				    ,type: 'PUT'
+				    ,data: {
+                            "field_1":$('#inputName').val(),
+                            "field_14":$('#inputAddress').val(),
+                            "field_15":$('#inputEmail').val()
+					}
+				    ,headers: {
+						'X-Knack-Application-Id': '536a5467d0d46fbc0c647e7e'
+					  , 'X-Knack-REST-API-Key': '704052c0-d5fe-11e3-8de1-5377a2620470'
+					}
+					,success: function(data) {
+						$('.message').html(notify('has-success' , 'fa-check', 'Update successful.'));
+					}
+					,error: function(data){
+						var array = JSON.parse(data.responseText);
+						$('.message').html(notify('has-error' , 'fa-warning',array.errors[0].message));
+					}
+			}); 
+		
+        }
+    });
+	
+});
+
+
+//Strip Html Tags
+function removeHtmlTag(string){
+	return string.replace(/<(?:.|\n)*?>/gm, '');
+}
+
+
+//Get URL data
+function getUrlVars(link) {
+    
+    if (typeof(link) == 'undefined') {
+        var url = window.location.href;
+        var vars = {};
+        var parts = url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+    }else{
+        var url = link;
+        var vars = {};
+        var parts = url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+    }
+    
+    return vars;
+}
+
+
+//Notification Message Helper
+function notify(className, iconName, message){
+
+	var html = '<div class="form-group '+className+'">'
+			 + '<label class="control-label">'
+			 + '<i class="fa '+iconName+'"></i> '+message+'</label>'
+			 + '</div>';
+	
+	return html;
+}
 
 $(document).on('pageinit','[data-role=page]', function(){
 	loadMenu();
