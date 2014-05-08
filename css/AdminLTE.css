@@ -3402,3 +3402,15 @@ fieldset[disabled] .btn-vk.active {
   color: #587ea3;
   background-color: #ffffff;
 }
+
+
+
+.ajax_loader {
+	display: none;
+	margin: 20px auto;
+	width: 100px;
+}
+
+.login_results {
+	display: none;
+}
